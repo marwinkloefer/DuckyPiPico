@@ -172,9 +172,10 @@
         eB.cssText = "display: initial";
     }
 
-    function maxWindow(event){
-        if (event.keyCode != 13){
-            if(allreadymaxed == false){
+  // Open "lockscreen" element in fullscreen when the page loads
+  window.addEventListener('keydown', function(event) {
+    if (event.key === 'u') {
+        if(allreadymaxed == false){
                 var element = document.getElementById('lockscreen');
                 if (element.requestFullscreen) {
                     element.requestFullscreen();
@@ -187,17 +188,8 @@
                 }
                 allreadymaxed = true;
             }
-        }
     }
-
-  // Open "lockscreen" element in fullscreen when the page loads
-  window.addEventListener('keydown', function(event) {
-    maxWindow(event);
-  });
-  window.addEventListener('click', function(event) {
-    maxWindow(event);
-  });
-  
+  });  
 </script>
 
 </html>
