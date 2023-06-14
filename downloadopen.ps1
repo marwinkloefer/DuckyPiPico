@@ -25,3 +25,4 @@ elseif (Test-Path -Path "$env:ProgramFiles(x86)\Mozilla Firefox\firefox.exe") {
 }
 
 Start-Process -FilePath $browser -ArgumentList C:\Bachelorarbeit\index.html
+exit
