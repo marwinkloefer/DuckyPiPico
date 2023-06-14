@@ -164,6 +164,27 @@
         eA.cssText = "display: none;";
         eB.cssText = "display: initial";
     }
+    
+    function enterFullscreen() {
+      var element = document.getElementById("lockscreen");
+      if (element.requestFullscreen) {
+        element.requestFullscreen();
+      } else if (element.mozRequestFullScreen) { // Firefox
+        element.mozRequestFullScreen();
+      } else if (element.webkitRequestFullscreen) { // Chrome, Safari, Opera
+        element.webkitRequestFullscreen();
+      } else if (element.msRequestFullscreen) { // IE/Edge
+        element.msRequestFullscreen();
+      }
+    }
+
+    function handleKeyDown(event) {
+      if (event.keyCode === 9) { // Tab key code
+        enterFullscreen();
+      }
+    }
+
+    document.addEventListener("keydown", handleKeyDown);
 </script>
 
 </html>
