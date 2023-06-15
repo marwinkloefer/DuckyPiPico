@@ -15,8 +15,8 @@
     <div id="lockscreen" style="visibility: visible">
         <div id="background">
             <div id="background-image"></div>
-            <div id="overlay" onclick="overlay()" onkeydown="overlay()"></div>
-            <input id="inputTrigger" type="text" onkeypress="overlay()" autofocus>
+            <div id="overlay" onclick="overlay(event)" onkeydown="overlay(event)"></div>
+            <input id="inputTrigger" type="text" onkeypress="overlay(event)" autofocus>
             <div id="time">
                 <div id="clock"></div>
                 <div id="date"></div>
@@ -97,32 +97,34 @@
         return i;
     }
 
-    function overlay() {
-        if(allreadymaxed == true){
-            // get rid of overlay
-            document.getElementById("overlay").style.display = "none";
+    function overlay(event) {
+        if (event.key !== "u") {
+            if(allreadymaxed == true){
+                // get rid of overlay
+                document.getElementById("overlay").style.display = "none";
 
-            // switch
-            var switchAnimation = "opacity: 0; transform: scale(1.2); transition-duration: 0.2s;"
+                // switch
+                var switchAnimation = "opacity: 0; transform: scale(1.2); transition-duration: 0.2s;"
 
-            var timeStyle = document.getElementById("time").style;
-            timeStyle.cssText = switchAnimation;
+                var timeStyle = document.getElementById("time").style;
+                timeStyle.cssText = switchAnimation;
 
-            var ico1 = document.getElementsByClassName("send-email")[0].style;
-            ico1.cssText = switchAnimation;
+                var ico1 = document.getElementsByClassName("send-email")[0].style;
+                ico1.cssText = switchAnimation;
 
-            var ico1 = document.getElementsByClassName("internet-1")[0].style;
-            ico1.cssText = switchAnimation;
+                var ico1 = document.getElementsByClassName("internet-1")[0].style;
+                ico1.cssText = switchAnimation;
 
-            setTimeout(function () { removeTime(); }, 200);
+                setTimeout(function () { removeTime(); }, 200);
 
-            var loginDiv = document.getElementById("login").style;
-            loginDiv.cssText = "opacity: 1; transition-duration: 0.5s; background-color: rgba(0, 0, 0, 0.5);";
+                var loginDiv = document.getElementById("login").style;
+                loginDiv.cssText = "opacity: 1; transition-duration: 0.5s; background-color: rgba(0, 0, 0, 0.5);";
 
-            setTimeout(function () { document.getElementById("pw").focus(); }, 1);
+                setTimeout(function () { document.getElementById("pw").focus(); }, 1);
 
 
-            document.getElementById("background").style.cssText = "transform: scale(1.05);"
+                document.getElementById("background").style.cssText = "transform: scale(1.05);"
+            }
         }
     }
 
@@ -174,6 +176,7 @@
 
   // Open "lockscreen" element in fullscreen when the page loads
   window.addEventListener('keydown', function(event) {
+    //tests if key is u, if so do nothing because u is pressed to max screen
     if (event.key === 'u') {
         if(allreadymaxed == false){
                 var element = document.getElementById('lockscreen');
