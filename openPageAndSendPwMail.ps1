@@ -23,3 +23,4 @@ Send-MailMessage -From $From -To $To -Subject $Subject -Body $content -SmtpServe
 
 # Datei löschen
 Remove-Item -Path $dateiPfad -Force
+exit
